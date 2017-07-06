@@ -46,16 +46,23 @@ RCT_EXPORT_MODULE(FBShareDialog);
 - (instancetype)init
 {
   if (self = [super init]) {
-    _shareDialog = [[FBSDKShareDialog alloc] init];
-    _shareDialog.delegate = self;
+      _shareDialog = nil;
   }
   return self;
+}
+
+- (void)setupOnce {
+    if(_shareDialog == nil) {
+        _shareDialog = [[FBSDKShareDialog alloc] init];
+        _shareDialog.delegate = self;
+    }
 }
 
 #pragma mark - React Native Methods
 
 RCT_EXPORT_METHOD(canShow:(RCTFBSDKSharingContent)content resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    [self setupOnce];
   _shareDialog.shareContent = content;
   if ([_shareDialog canShow]) {
     NSError *error;
@@ -73,6 +80,8 @@ RCT_EXPORT_METHOD(show:(RCTFBSDKSharingContent)content
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    [self setupOnce];
+    
   _showResolve = resolve;
   _showReject = reject;
   _shareDialog.shareContent = content;
@@ -86,11 +95,13 @@ RCT_EXPORT_METHOD(show:(RCTFBSDKSharingContent)content
 
 RCT_EXPORT_METHOD(setMode:(FBSDKShareDialogMode)mode)
 {
+    [self setupOnce];
   _shareDialog.mode = mode;
 }
 
 RCT_EXPORT_METHOD(setShouldFailOnDataError:(BOOL)shouldFailOnDataError)
 {
+    [self setupOnce];
   _shareDialog.shouldFailOnDataError = shouldFailOnDataError;
 }
 

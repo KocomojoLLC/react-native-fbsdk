@@ -39,13 +39,19 @@ RCT_EXPORT_MODULE(FBMessageDialog);
   return dispatch_get_main_queue();
 }
 
+- (void)setupOnce {
+    if(_dialog == nil) {
+        _dialog = [[FBSDKMessageDialog alloc] init];
+        _dialog.delegate = self;
+    }
+}
+
 #pragma mark - Object Lifecycle
 
 - (instancetype)init
 {
   if ((self = [super init])) {
-    _dialog = [[FBSDKMessageDialog alloc] init];
-    _dialog.delegate = self;
+      _dialog = nil;
   }
   return self;
 }
@@ -54,6 +60,7 @@ RCT_EXPORT_MODULE(FBMessageDialog);
 
 RCT_EXPORT_METHOD(canShow:(RCTFBSDKSharingContent)content resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    [self setupOnce];
   _dialog.shareContent = content;
   if ([_dialog canShow]) {
     NSError *error;
@@ -69,6 +76,7 @@ RCT_EXPORT_METHOD(canShow:(RCTFBSDKSharingContent)content resolver:(RCTPromiseRe
 
 RCT_EXPORT_METHOD(show:(RCTFBSDKSharingContent)content resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    [self setupOnce];
   _showResolve = resolve;
   _showReject = reject;
   _dialog.shareContent = content;
@@ -77,6 +85,7 @@ RCT_EXPORT_METHOD(show:(RCTFBSDKSharingContent)content resolver:(RCTPromiseResol
 
 RCT_EXPORT_METHOD(setShouldFailOnDataError:(BOOL)shouldFailOnDataError)
 {
+    [self setupOnce];
   _dialog.shouldFailOnDataError = shouldFailOnDataError;
 }
 
